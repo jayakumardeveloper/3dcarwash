@@ -1,10 +1,11 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
 gsap.registerPlugin(ScrollTrigger);
 
-let scene, camera, renderer, model, radius;
+let scene, camera, renderer, model, radius, controls;
 const target = new THREE.Vector3(0, 0, 0);
 const screenMove = { x: 0, y: 0 };
 
@@ -22,10 +23,6 @@ function init() {
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   // document.body.appendChild(renderer.domElement);
   document.querySelector('.main-content').appendChild(renderer.domElement);
-
-  // Add cursor style and mouse events
-  renderer.domElement.style.cursor = 'grab';
-  addMouseEvents();
 
   scene.add(new THREE.AmbientLight(0xffffff, 1.5));
   const d = new THREE.DirectionalLight(0xffffff, 4);
@@ -46,6 +43,11 @@ function init() {
     // ⭐ store the TRUE centered position after autofit
     model.userData.basePosition = model.position.clone();
 
+    controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.enableZoom = false;
+    controls.enablePan = false;
+
     createScrollAnimation();
   });
 
@@ -62,7 +64,7 @@ function autoFit(object) {
   const max = Math.max(size.x, size.y, size.z);
   const dist = max * 2.2;
 
-  camera.position.set(3, dist * 0.2, dist-5);
+  camera.position.set(4, dist * 0.2, dist - 3);
   camera.lookAt(0, 0, 0);
 
   return dist;
@@ -183,7 +185,7 @@ function createScrollAnimation() {
   tl.to(
     camera.position,
     {
-      x: radius * 0.9,
+      x: radius * 0.8,
       y: radius * 0.5,
       z: radius,
       duration: 1,
@@ -210,31 +212,11 @@ function onResize() {
 
 function animate() {
   requestAnimationFrame(animate);
-  camera.lookAt(target);
+  if (controls) {
+    controls.update();
+  } else {
+    camera.lookAt(target);
+  }
   if (model) moveModelScreen(screenMove.x, screenMove.y);
   renderer.render(scene, camera);
-}
-
-function addMouseEvents() {
-  let isDragging = false;
-  let previousMousePosition = { x: 0, y: 0 };
-
-  renderer.domElement.addEventListener('mousedown', (e) => {
-    isDragging = true;
-    previousMousePosition = { x: e.clientX, y: e.clientY };
-    renderer.domElement.style.cursor = 'grabbing';
-  });
-
-  window.addEventListener('mouseup', () => {
-    isDragging = false;
-    renderer.domElement.style.cursor = 'grab';
-  });
-
-  window.addEventListener('mousemove', (e) => {
-    if (isDragging && model) {
-      const deltaX = e.clientX - previousMousePosition.x;
-      model.rotation.y += deltaX * 0.005;
-      previousMousePosition = { x: e.clientX, y: e.clientY };
-    }
-  });
 }

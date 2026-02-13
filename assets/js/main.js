@@ -24,10 +24,6 @@ function init() {
   // document.body.appendChild(renderer.domElement);
   document.querySelector('.main-content').appendChild(renderer.domElement);
 
-  // Add cursor style and mouse events
-  renderer.domElement.style.cursor = 'grab';
-  addMouseEvents();
-
   scene.add(new THREE.AmbientLight(0xffffff, 1.5));
   const d = new THREE.DirectionalLight(0xffffff, 4);
   d.position.set(5, 10, 10);
@@ -68,7 +64,7 @@ function autoFit(object) {
   const max = Math.max(size.x, size.y, size.z);
   const dist = max * 2.2;
 
-  camera.position.set(4, dist * 0.2, dist - 4);
+  camera.position.set(4, dist * 0.2, dist - 3);
   camera.lookAt(0, 0, 0);
 
   return dist;
@@ -223,33 +219,4 @@ function animate() {
   }
   if (model) moveModelScreen(screenMove.x, screenMove.y);
   renderer.render(scene, camera);
-}
-
-function addMouseEvents() {
-  let isDragging = false;
-  let previousMousePosition = { x: 0, y: 0 };
-
-  renderer.domElement.addEventListener('mousedown', (e) => {
-    isDragging = true;
-    previousMousePosition = { x: e.clientX, y: e.clientY };
-    renderer.domElement.style.cursor = 'grabbing';
-  });
-
-  window.addEventListener('mouseup', () => {
-    isDragging = false;
-    renderer.domElement.style.cursor = 'grab';
-  });
-
-  window.addEventListener('mousemove', (e) => {
-    if (isDragging && model) {
-      const deltaX = e.clientX - previousMousePosition.x;
-      const deltaY = e.clientY - previousMousePosition.y;
-      const rotateSpeed = 0.005;
-
-      model.rotateOnWorldAxis(new THREE.Vector3(0, 1, 0), deltaX * rotateSpeed);
-      model.rotateOnWorldAxis(new THREE.Vector3(1, 0, 0).applyQuaternion(camera.quaternion), deltaY * rotateSpeed);
-
-      previousMousePosition = { x: e.clientX, y: e.clientY };
-    }
-  });
 }
