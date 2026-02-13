@@ -15,7 +15,7 @@ canvas {
   position: fixed;
   top: 0;
   left: 0;
-  z-index: -1;
+  z-index: 2;
 }
 
 section {
@@ -31,7 +31,7 @@ section:first-of-type {
 }
 
 .mcqueen-bg {
-  background-image: url(../img/mcqueen-car.jpeg);
+  background-image: url(../img/landing-bg.png);
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
